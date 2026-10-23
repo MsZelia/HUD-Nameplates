@@ -1,0 +1,45 @@
+{
+	"players": {
+		// enable customization for player nameplates
+		"enabled": true,
+		
+		// show your own nameplate in 3rd person
+		"showSelf": false,
+		// show downed players even if their nameplate is hidden by other options
+		"showDowned": true,
+		// show friends highlighted like teammates, even if not in the same team
+		"showFriends": true,
+		// show teammates highlighted (as default), disable to change teammates to regular player nameplate style
+		"showTeammates": true,
+		// completely hide all other player nameplates in events
+		"hideEventOther": true,
+		// hide all other player nameplates, this will show only arrows above players in events if "hideEventOther" is false
+		"hideOther": false,
+		//"showAll": true,
+		
+		// hide player level numbers
+		"hideLevel": true,
+		// hide player titles
+		"hideTitle": true,
+		// hide public team leader nameplate styles
+		"hidePublicTeams": true,
+	},
+	"pets": {
+		// enable customization for pet nameplates
+		"enabled": true,
+		
+		// show pet nameplate only when they are wounded/downed
+		"showOnlyIfWounded": false,
+		// show pet nameplate only when their HP is below specified percentage value
+		"showOnlyBelowHP": 0,
+		
+		// show/hide pet name
+		"showName": true,
+		// show/hide pet icon
+		"showIcon": false,
+		// show/hide pet level
+		"showLevel": true,
+		// show/hide pet nameplate background, similar to public team leader style for players
+		"showBackground": false,
+	}
+}
