@@ -85,8 +85,6 @@ package
       
       private var hudTools:SharedHUDTools;
       
-      private var HUDModeData:*;
-      
       private var TeamMarkers:*;
       
       private var PetMarkers:*;

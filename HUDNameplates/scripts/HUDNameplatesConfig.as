@@ -23,6 +23,7 @@ package
          if(!config.players)
          {
             config.players = {};
+            config.players.enabled = false;
             config.players.showSelf = false;
             config.players.showDowned = true;
             config.players.showFriends = true;
@@ -30,11 +31,12 @@ package
             config.players.hideEventOther = false;
             config.players.hideOther = false;
             config.players.hideLevel = false;
-            config.players.hideTitle = false;
-            config.players.hidePublicTeams = false;
+            config.players.hideTitle = true;
+            config.players.hidePublicTeams = true;
          }
          else
          {
+            config.players.enabled = Parser.parseBoolean(config.players.enabled,false);
             config.players.showSelf = Parser.parseBoolean(config.players.showSelf,false);
             config.players.showDowned = Parser.parseBoolean(config.players.showDowned,true);
             config.players.showFriends = Parser.parseBoolean(config.players.showFriends,true);
@@ -42,12 +44,13 @@ package
             config.players.hideEventOther = Parser.parseBoolean(config.players.hideEventOther,false);
             config.players.hideOther = Parser.parseBoolean(config.players.hideOther,false);
             config.players.hideLevel = Parser.parseBoolean(config.players.hideLevel,false);
-            config.players.hideTitle = Parser.parseBoolean(config.players.hideTitle,false);
-            config.players.hidePublicTeams = Parser.parseBoolean(config.players.hidePublicTeams,false);
+            config.players.hideTitle = Parser.parseBoolean(config.players.hideTitle,true);
+            config.players.hidePublicTeams = Parser.parseBoolean(config.players.hidePublicTeams,true);
          }
          if(!config.pets)
          {
             config.pets = {};
+            config.pets.enabled = false;
             config.pets.showOnlyIfWounded = false;
             config.pets.showOnlyBelowHP = 0;
             config.pets.showName = true;
@@ -57,6 +60,7 @@ package
          }
          else
          {
+            config.pets.enabled = Parser.parseBoolean(config.pets.enabled,false);
             config.pets.showOnlyIfWounded = Parser.parseBoolean(config.pets.showOnlyIfWounded,false);
             config.pets.showOnlyBelowHP = Parser.parsePositiveNumber(config.pets.showOnlyBelowHP,0);
             config.pets.showName = Parser.parseBoolean(config.pets.showName,true);
