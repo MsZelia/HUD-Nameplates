@@ -11,11 +11,13 @@
 		"showFriends": true,
 		// show teammates highlighted (as default), disable to change teammates to regular player nameplate style
 		"showTeammates": true,
+		// show only arrows above all other players in events
+		"minimizeEventOther": true,
 		// completely hide all other player nameplates in events
-		"hideEventOther": true,
-		// hide all other player nameplates, this will show only arrows above players in events if "hideEventOther" is false
+		"hideEventOther": false,
+		// hide all other player nameplates
 		"hideOther": false,
-		//"showAll": true,
+		//"showAll": false,
 		
 		// hide player level numbers
 		"hideLevel": true,

@@ -415,6 +415,14 @@ package
                      nameplate.isTeammate = false;
                      nameplate.playerState = marker.isEventGroup ? "eventgroupmate" : (marker.isPvPFlagged ? "potentialHostile" : "nonhostile");
                   }
+                  if(!isShown && cfg.minimizeEventOther)
+                  {
+                     if(marker.isEventGroup && (!marker.isTeammate || !cfg.showTeammates))
+                     {
+                        nameplate.inLOS = false;
+                        isShown = true;
+                     }
+                  }
                   if(!isShown && cfg.hideEventOther)
                   {
                      if(marker.isEventGroup && (!marker.isTeammate || !cfg.showTeammates))

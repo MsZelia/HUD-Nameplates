@@ -28,6 +28,7 @@ package
             config.players.showDowned = true;
             config.players.showFriends = true;
             config.players.showTeammates = true;
+            config.players.minimizeEventOther = true;
             config.players.hideEventOther = false;
             config.players.hideOther = false;
             config.players.hideLevel = false;
@@ -41,6 +42,7 @@ package
             config.players.showDowned = Parser.parseBoolean(config.players.showDowned,true);
             config.players.showFriends = Parser.parseBoolean(config.players.showFriends,true);
             config.players.showTeammates = Parser.parseBoolean(config.players.showTeammates,true);
+            config.players.minimizeEventOther = Parser.parseBoolean(config.players.minimizeEventOther,true);
             config.players.hideEventOther = Parser.parseBoolean(config.players.hideEventOther,false);
             config.players.hideOther = Parser.parseBoolean(config.players.hideOther,false);
             config.players.hideLevel = Parser.parseBoolean(config.players.hideLevel,false);
