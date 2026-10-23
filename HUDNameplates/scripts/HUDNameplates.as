@@ -33,7 +33,45 @@ package
       
       private static const TITLE_HUDMENU:String = "HUDMenu";
       
-      private static const HUDTOOLS_MENU_TEST:String = MOD_NAME + "_TEST";
+      private static const HUDTOOLS_MENU_PLAYERS:String = MOD_NAME + "_PLAYERS";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_ENABLED:String = MOD_NAME + "_PLAYERS_ENABLED";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_SELF:String = MOD_NAME + "_PLAYERS_SELF";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_DOWNED:String = MOD_NAME + "_PLAYERS_DOWNED";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_FRIENDS:String = MOD_NAME + "_PLAYERS_FRIENDS";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_TEAMMATES:String = MOD_NAME + "_PLAYERS_TEAMMATES";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_EVENT_OTHER:String = MOD_NAME + "_PLAYERS_EVENT_OTHER";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_OTHER:String = MOD_NAME + "_PLAYERS_OTHER";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_LEVEL:String = MOD_NAME + "_PLAYERS_LEVEL";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_TITLE:String = MOD_NAME + "_PLAYERS_TITLE";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_PUBLIC_TEAMS:String = MOD_NAME + "_PLAYERS_PUBLIC_TEAMS";
+      
+      private static const HUDTOOLS_MENU_PETS:String = MOD_NAME + "_PETS";
+      
+      private static const HUDTOOLS_MENU_PETS_ENABLED:String = MOD_NAME + "_PETS_ENABLED";
+      
+      private static const HUDTOOLS_MENU_PETS_ONLY_IF_WOUNDED:String = MOD_NAME + "_PETS_ONLY_IF_WOUNDED";
+      
+      private static const HUDTOOLS_MENU_PETS_NAME:String = MOD_NAME + "_PETS_NAME";
+      
+      private static const HUDTOOLS_MENU_PETS_ICON:String = MOD_NAME + "_PETS_ICON";
+      
+      private static const HUDTOOLS_MENU_PETS_LEVEL:String = MOD_NAME + "_PETS_LEVEL";
+      
+      private static const HUDTOOLS_MENU_PETS_BACKGROUND:String = MOD_NAME + "_PETS_BACKGROUND";
+      
+      private static var HUDTOOLS_PLAYERS_OPTIONS:* = null;
+      
+      private static var HUDTOOLS_PETS_OPTIONS:* = null;
       
       private var topLevel:* = null;
       
@@ -122,13 +160,72 @@ package
          this.configTimer.start();
       }
       
+      private function initHUDToolsOptions() : void
+      {
+         if(HUDTOOLS_PLAYERS_OPTIONS == null)
+         {
+            HUDTOOLS_PLAYERS_OPTIONS = {};
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_ENABLED] = "enabled";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_SELF] = "showSelf";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_DOWNED] = "showDowned";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_FRIENDS] = "showFriends";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_TEAMMATES] = "showTeammates";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_EVENT_OTHER] = "hideEventOther";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_OTHER] = "hideOther";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_LEVEL] = "hideLevel";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_TITLE] = "hideTitle";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_PUBLIC_TEAMS] = "hidePublicTeams";
+         }
+         if(HUDTOOLS_PETS_OPTIONS == null)
+         {
+            HUDTOOLS_PETS_OPTIONS = {};
+            HUDTOOLS_PETS_OPTIONS[HUDTOOLS_MENU_PETS_ENABLED] = "enabled";
+            HUDTOOLS_PETS_OPTIONS[HUDTOOLS_MENU_PETS_ONLY_IF_WOUNDED] = "showOnlyIfWounded";
+            HUDTOOLS_PETS_OPTIONS[HUDTOOLS_MENU_PETS_NAME] = "showName";
+            HUDTOOLS_PETS_OPTIONS[HUDTOOLS_MENU_PETS_ICON] = "showIcon";
+            HUDTOOLS_PETS_OPTIONS[HUDTOOLS_MENU_PETS_LEVEL] = "showLevel";
+            HUDTOOLS_PETS_OPTIONS[HUDTOOLS_MENU_PETS_BACKGROUND] = "showBackground";
+         }
+      }
+      
       public function onBuildMenu(parentItem:String = null) : *
       {
+         var option:*;
          try
          {
+            if(!config)
+            {
+               return;
+            }
+            this.initHUDToolsOptions();
             if(parentItem == MOD_NAME)
             {
-               this.hudTools.AddMenuItem(HUDTOOLS_MENU_TEST,"test",false,false,250);
+               this.hudTools.AddMenuItem(HUDTOOLS_MENU_PLAYERS,"PLAYERS",true,true,250);
+               this.hudTools.AddMenuItem(HUDTOOLS_MENU_PETS,"PETS",true,true,250);
+            }
+            else if(parentItem == HUDTOOLS_MENU_PLAYERS)
+            {
+               for(option in HUDTOOLS_PLAYERS_OPTIONS)
+               {
+                  this.hudTools.AddMenuItem(option,HUDTOOLS_PLAYERS_OPTIONS[option],true,true,250);
+               }
+            }
+            else if(parentItem == HUDTOOLS_MENU_PETS)
+            {
+               for(option in HUDTOOLS_PETS_OPTIONS)
+               {
+                  this.hudTools.AddMenuItem(option,HUDTOOLS_PETS_OPTIONS[option],true,true,250);
+               }
+            }
+            else if(HUDTOOLS_PLAYERS_OPTIONS[parentItem] != null)
+            {
+               this.hudTools.AddMenuItem(parentItem + "--1","true",!config.players[HUDTOOLS_PLAYERS_OPTIONS[parentItem]],false);
+               this.hudTools.AddMenuItem(parentItem + "--","false",config.players[HUDTOOLS_PLAYERS_OPTIONS[parentItem]],false);
+            }
+            else if(HUDTOOLS_PETS_OPTIONS[parentItem] != null)
+            {
+               this.hudTools.AddMenuItem(parentItem + "--1","true",!config.pets[HUDTOOLS_PETS_OPTIONS[parentItem]],false);
+               this.hudTools.AddMenuItem(parentItem + "--","false",config.pets[HUDTOOLS_PETS_OPTIONS[parentItem]],false);
             }
          }
          catch(e:Error)
@@ -138,10 +235,22 @@ package
       
       public function onSelectMenu(selectItem:String) : *
       {
+         var selectedItemSuboption:Array;
          try
          {
-            if(selectItem == HUDTOOLS_MENU_TEST)
+            selectedItemSuboption = selectItem.split("--");
+            if(selectedItemSuboption.length == 2)
             {
+               if(HUDTOOLS_PLAYERS_OPTIONS[selectedItemSuboption[0]])
+               {
+                  config.players[HUDTOOLS_PLAYERS_OPTIONS[selectedItemSuboption[0]]] = Boolean(selectedItemSuboption[1]);
+                  this.onTeamMarkersPostUpdate();
+               }
+               else if(HUDTOOLS_PETS_OPTIONS[selectedItemSuboption[0]])
+               {
+                  config.pets[HUDTOOLS_PETS_OPTIONS[selectedItemSuboption[0]]] = Boolean(selectedItemSuboption[1]);
+                  this.onPetMarkersPostUpdate();
+               }
             }
          }
          catch(e:Error)
@@ -239,7 +348,7 @@ package
          }
       }
       
-      public function onTeamMarkersPostUpdate(event:*) : void
+      public function onTeamMarkersPostUpdate() : void
       {
          var isShown:Boolean;
          var i:int;
