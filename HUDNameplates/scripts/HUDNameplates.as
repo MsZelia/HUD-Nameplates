@@ -23,7 +23,7 @@ package
       
       public static const MOD_NAME:String = "HUDNameplates";
       
-      public static const MOD_VERSION:String = "1.0.0";
+      public static const MOD_VERSION:String = "1.0.1";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -44,6 +44,8 @@ package
       private static const HUDTOOLS_MENU_PLAYERS_FRIENDS:String = MOD_NAME + "_PLAYERS_FRIENDS";
       
       private static const HUDTOOLS_MENU_PLAYERS_TEAMMATES:String = MOD_NAME + "_PLAYERS_TEAMMATES";
+      
+      private static const HUDTOOLS_MENU_PLAYERS_MINIMIZE_EVENT_OTHER:String = MOD_NAME + "_PLAYERS_MINIMIZE_EVENT_OTHER";
       
       private static const HUDTOOLS_MENU_PLAYERS_EVENT_OTHER:String = MOD_NAME + "_PLAYERS_EVENT_OTHER";
       
@@ -168,6 +170,7 @@ package
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_DOWNED] = "showDowned";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_FRIENDS] = "showFriends";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_TEAMMATES] = "showTeammates";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_MINIMIZE_EVENT_OTHER] = "minimizeEventOther";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_EVENT_OTHER] = "hideEventOther";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_OTHER] = "hideOther";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_LEVEL] = "hideLevel";
