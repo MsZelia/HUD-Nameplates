@@ -45,6 +45,8 @@ package
       
       private static const HUDTOOLS_MENU_PLAYERS_TEAMMATES:String = MOD_NAME + "_PLAYERS_TEAMMATES";
       
+      private static const HUDTOOLS_MENU_PLAYERS_TEAMMATES_DER:String = MOD_NAME + "_PLAYERS_TEAMMATES_DER";
+      
       private static const HUDTOOLS_MENU_PLAYERS_MINIMIZE_EVENT_OTHER:String = MOD_NAME + "_PLAYERS_MINIMIZE_EVENT_OTHER";
       
       private static const HUDTOOLS_MENU_PLAYERS_EVENT_OTHER:String = MOD_NAME + "_PLAYERS_EVENT_OTHER";
@@ -91,6 +93,10 @@ package
       
       private var PetMarkers:*;
       
+      private var QuestTrackerProvider:*;
+      
+      private var PartyMenuList:*;
+      
       private var Friends:* = {};
       
       public function HUDNameplates()
@@ -125,6 +131,8 @@ package
                this.TeamMarkers.addEventListener(Event.CHANGE,this.onTeamMarkersPostUpdate,false,int.MIN_VALUE);
                this.PetMarkers = BSUIDataManager.GetDataFromClient("PetMarkers");
                this.PetMarkers.addEventListener(Event.CHANGE,this.onPetMarkersPostUpdate,false,int.MIN_VALUE);
+               this.QuestTrackerProvider = BSUIDataManager.GetDataFromClient("QuestTrackerProvider");
+               this.PartyMenuList = BSUIDataManager.GetDataFromClient("PartyMenuList");
                this.initConfigTimer();
             }
             else
@@ -170,6 +178,7 @@ package
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_DOWNED] = "showDowned";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_FRIENDS] = "showFriends";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_TEAMMATES] = "showTeammates";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_TEAMMATES_DER] = "showTeammatesInDopExpoRaid";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_MINIMIZE_EVENT_OTHER] = "minimizeEventOther";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_EVENT_OTHER] = "hideEventOther";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_OTHER] = "hideOther";
@@ -329,6 +338,51 @@ package
          return this.topLevel.PetMarkerBase ? this.topLevel.PetMarkerBase.PetNameplates : null;
       }
       
+      public function get IsInDailyOps() : Boolean
+      {
+         if(this.QuestTrackerProvider && this.QuestTrackerProvider.data && this.QuestTrackerProvider.data.quests)
+         {
+            for each(var quest in this.QuestTrackerProvider.data.quests)
+            {
+               if(quest.questId == 5928916 || quest.questId == 6228119)
+               {
+                  return true;
+               }
+            }
+         }
+         return false;
+      }
+      
+      public function get IsInExpedition() : Boolean
+      {
+         if(this.QuestTrackerProvider && this.QuestTrackerProvider.data && this.QuestTrackerProvider.data.quests)
+         {
+            for each(var quest in this.QuestTrackerProvider.data.quests)
+            {
+               if(quest.questId == 6452460 || quest.questId == 6587008 || quest.questId == 7021340 || quest.questId == 7055933 || quest.questId == 7191227)
+               {
+                  return true;
+               }
+            }
+         }
+         return false;
+      }
+      
+      public function get IsInRaid() : Boolean
+      {
+         if(this.PartyMenuList && this.PartyMenuList.data && this.PartyMenuList.data.members)
+         {
+            for each(var member in this.PartyMenuList.data.members)
+            {
+               if(member.isLocalPlayer)
+               {
+                  return Boolean(member.isInRaid) && Boolean(member.isVisible) && Boolean(member.isOnServer);
+               }
+            }
+         }
+         return false;
+      }
+      
       public function onFriendsListDataUpdate(event:*) : void
       {
          var i:int;
@@ -359,9 +413,11 @@ package
          var teamNameplates:*;
          var markers:*;
          var t1:*;
+         var isInDopExpoRaid:Boolean;
          try
          {
             t1 = getTimer();
+            isInDopExpoRaid = this.IsInDailyOps || this.IsInExpedition || this.IsInRaid;
             teamNameplates = this.TeamNameplates;
             if(!config || !teamNameplates)
             {
@@ -415,8 +471,11 @@ package
                   }
                   if(!isShown && marker.isTeammate && !cfg.showTeammates)
                   {
-                     nameplate.isTeammate = false;
-                     nameplate.playerState = marker.isEventGroup ? "eventgroupmate" : (marker.isPvPFlagged ? "potentialHostile" : "nonhostile");
+                     if(!isInDopExpoRaid || !cfg.showTeammatesInDopExpoRaid)
+                     {
+                        nameplate.isTeammate = false;
+                        nameplate.playerState = marker.isEventGroup ? "eventgroupmate" : (marker.isPvPFlagged ? "potentialHostile" : "nonhostile");
+                     }
                   }
                   if(!isShown && cfg.minimizeEventOther)
                   {
