@@ -59,6 +59,8 @@ package
       
       private static const HUDTOOLS_MENU_PLAYERS_PUBLIC_TEAMS:String = MOD_NAME + "_PLAYERS_PUBLIC_TEAMS";
       
+      private static const HUDTOOLS_MENU_PLAYERS_CONVERSATION:String = MOD_NAME + "_PLAYERS_CONVERSATION";
+      
       private static const HUDTOOLS_MENU_PETS:String = MOD_NAME + "_PETS";
       
       private static const HUDTOOLS_MENU_PETS_ENABLED:String = MOD_NAME + "_PETS_ENABLED";
@@ -185,6 +187,7 @@ package
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_LEVEL] = "hideLevel";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_TITLE] = "hideTitle";
             HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_PUBLIC_TEAMS] = "hidePublicTeams";
+            HUDTOOLS_PLAYERS_OPTIONS[HUDTOOLS_MENU_PLAYERS_CONVERSATION] = "hideInConversation";
          }
          if(HUDTOOLS_PETS_OPTIONS == null)
          {
@@ -446,6 +449,10 @@ package
                   if(cfg.hideTitle)
                   {
                      nameplate.displayName = marker.displayName.split("<")[0];
+                  }
+                  if(cfg.hideInConversation)
+                  {
+                     nameplate.isInConversation = false;
                   }
                   if(marker.isLocalPlayer && cfg.showSelf)
                   {

@@ -35,6 +35,7 @@ package
             config.players.hideLevel = false;
             config.players.hideTitle = true;
             config.players.hidePublicTeams = true;
+            config.players.hideInConversation = true;
          }
          else
          {
@@ -50,6 +51,7 @@ package
             config.players.hideLevel = Parser.parseBoolean(config.players.hideLevel,false);
             config.players.hideTitle = Parser.parseBoolean(config.players.hideTitle,true);
             config.players.hidePublicTeams = Parser.parseBoolean(config.players.hidePublicTeams,true);
+            config.players.hideInConversation = Parser.parseBoolean(config.players.hideInConversation,true);
          }
          if(!config.pets)
          {
