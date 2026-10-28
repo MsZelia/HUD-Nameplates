@@ -11,6 +11,8 @@
 		"showFriends": true,
 		// show teammates highlighted (as default), disable to change teammates to regular player nameplate style
 		"showTeammates": true,
+		// show teammates in dops/expos/raids even if they are hidden with showTeammates:false
+		"showTeammatesInDopExpoRaid": true,
 		// show only arrows above all other players in events
 		"minimizeEventOther": true,
 		// completely hide all other player nameplates in events
