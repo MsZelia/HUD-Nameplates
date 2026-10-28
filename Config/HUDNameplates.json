@@ -22,11 +22,13 @@
 		//"showAll": false,
 		
 		// hide player level numbers
-		"hideLevel": true,
+		"hideLevel": false,
 		// hide player titles
 		"hideTitle": true,
 		// hide public team leader nameplate styles
 		"hidePublicTeams": true,
+		// hide (in conversation) text
+		"hideInConversation": true,
 	},
 	"pets": {
 		// enable customization for pet nameplates
