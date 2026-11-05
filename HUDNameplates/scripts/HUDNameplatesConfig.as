@@ -53,6 +53,29 @@ package
             config.players.hidePublicTeams = Parser.parseBoolean(config.players.hidePublicTeams,true);
             config.players.hideInConversation = Parser.parseBoolean(config.players.hideInConversation,true);
          }
+         if(!config.teamPanel)
+         {
+            config.teamPanel = {};
+            config.teamPanel.enabled = false;
+            config.teamPanel.hideTitle = true;
+            config.teamPanel.hideLevel = false;
+            config.teamPanel.hideSharedPerk = false;
+            config.teamPanel.hideInConversation = true;
+            config.teamPanel.hideInDailyOp = false;
+            config.teamPanel.hideInExpedition = false;
+            config.teamPanel.hideInRaid = false;
+         }
+         else
+         {
+            config.teamPanel.enabled = Parser.parseBoolean(config.teamPanel.enabled,false);
+            config.teamPanel.hideTitle = Parser.parseBoolean(config.teamPanel.hideTitle,true);
+            config.teamPanel.hideLevel = Parser.parseBoolean(config.teamPanel.hideLevel,false);
+            config.teamPanel.hideSharedPerk = Parser.parseBoolean(config.teamPanel.hideSharedPerk,false);
+            config.teamPanel.hideInConversation = Parser.parseBoolean(config.teamPanel.hideInConversation,true);
+            config.teamPanel.hideInDailyOp = Parser.parseBoolean(config.teamPanel.hideInDailyOp,false);
+            config.teamPanel.hideInExpedition = Parser.parseBoolean(config.teamPanel.hideInExpedition,false);
+            config.teamPanel.hideInRaid = Parser.parseBoolean(config.teamPanel.hideInRaid,false);
+         }
          if(!config.pets)
          {
             config.pets = {};

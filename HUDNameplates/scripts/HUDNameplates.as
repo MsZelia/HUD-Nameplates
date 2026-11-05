@@ -23,7 +23,7 @@ package
       
       public static const MOD_NAME:String = "HUDNameplates";
       
-      public static const MOD_VERSION:String = "1.1.0";
+      public static const MOD_VERSION:String = "1.2.0";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -75,9 +75,29 @@ package
       
       private static const HUDTOOLS_MENU_PETS_BACKGROUND:String = MOD_NAME + "_PETS_BACKGROUND";
       
+      private static const HUDTOOLS_MENU_TEAM:String = MOD_NAME + "_TEAM";
+      
+      private static const HUDTOOLS_MENU_TEAM_ENABLED:String = MOD_NAME + "_TEAM_ENABLED";
+      
+      private static const HUDTOOLS_MENU_TEAM_TITLE:String = MOD_NAME + "_TEAM_TITLE";
+      
+      private static const HUDTOOLS_MENU_TEAM_LEVEL:String = MOD_NAME + "_TEAM_LEVEL";
+      
+      private static const HUDTOOLS_MENU_TEAM_PERK:String = MOD_NAME + "_TEAM_PERK";
+      
+      private static const HUDTOOLS_MENU_TEAM_CONVERSATION:String = MOD_NAME + "_TEAM_CONVERSATION";
+      
+      private static const HUDTOOLS_MENU_TEAM_DOP:String = MOD_NAME + "_TEAM_DOP";
+      
+      private static const HUDTOOLS_MENU_TEAM_EXPO:String = MOD_NAME + "_TEAM_EXPO";
+      
+      private static const HUDTOOLS_MENU_TEAM_RAID:String = MOD_NAME + "_TEAM_RAID";
+      
       private static var HUDTOOLS_PLAYERS_OPTIONS:* = null;
       
       private static var HUDTOOLS_PETS_OPTIONS:* = null;
+      
+      private static var HUDTOOLS_TEAM_OPTIONS:* = null;
       
       private var topLevel:* = null;
       
@@ -133,8 +153,9 @@ package
                this.TeamMarkers.addEventListener(Event.CHANGE,this.onTeamMarkersPostUpdate,false,int.MIN_VALUE);
                this.PetMarkers = BSUIDataManager.GetDataFromClient("PetMarkers");
                this.PetMarkers.addEventListener(Event.CHANGE,this.onPetMarkersPostUpdate,false,int.MIN_VALUE);
-               this.QuestTrackerProvider = BSUIDataManager.GetDataFromClient("QuestTrackerProvider");
                this.PartyMenuList = BSUIDataManager.GetDataFromClient("PartyMenuList");
+               this.PartyMenuList.addEventListener(Event.CHANGE,this.onPartyMenuListPreUpdate,false,int.MAX_VALUE);
+               this.QuestTrackerProvider = BSUIDataManager.GetDataFromClient("QuestTrackerProvider");
                this.initConfigTimer();
             }
             else
@@ -153,6 +174,7 @@ package
          removeEventListener(Event.REMOVED_FROM_STAGE,this.removedFromStageHandler);
          this.TeamMarkers.removeEventListener(Event.CHANGE,this.onTeamMarkersPostUpdate);
          this.PetMarkers.removeEventListener(Event.CHANGE,this.onPetMarkersPostUpdate);
+         this.PartyMenuList.removeEventListener(Event.CHANGE,this.onPartyMenuListPreUpdate);
          if(this.configTimer)
          {
             this.configTimer.removeEventListener(TimerEvent.TIMER,this.loadConfig);
@@ -199,6 +221,18 @@ package
             HUDTOOLS_PETS_OPTIONS[HUDTOOLS_MENU_PETS_LEVEL] = "showLevel";
             HUDTOOLS_PETS_OPTIONS[HUDTOOLS_MENU_PETS_BACKGROUND] = "showBackground";
          }
+         if(HUDTOOLS_TEAM_OPTIONS == null)
+         {
+            HUDTOOLS_TEAM_OPTIONS = {};
+            HUDTOOLS_TEAM_OPTIONS[HUDTOOLS_MENU_TEAM_ENABLED] = "enabled";
+            HUDTOOLS_TEAM_OPTIONS[HUDTOOLS_MENU_TEAM_TITLE] = "hideTitle";
+            HUDTOOLS_TEAM_OPTIONS[HUDTOOLS_MENU_TEAM_LEVEL] = "hideLevel";
+            HUDTOOLS_TEAM_OPTIONS[HUDTOOLS_MENU_TEAM_PERK] = "hideSharedPerk";
+            HUDTOOLS_TEAM_OPTIONS[HUDTOOLS_MENU_TEAM_CONVERSATION] = "hideInConversation";
+            HUDTOOLS_TEAM_OPTIONS[HUDTOOLS_MENU_TEAM_DOP] = "hideInDailyOp";
+            HUDTOOLS_TEAM_OPTIONS[HUDTOOLS_MENU_TEAM_EXPO] = "hideInExpedition";
+            HUDTOOLS_TEAM_OPTIONS[HUDTOOLS_MENU_TEAM_RAID] = "hideInRaid";
+         }
       }
       
       public function onBuildMenu(parentItem:String = null) : *
@@ -214,6 +248,7 @@ package
             if(parentItem == MOD_NAME)
             {
                this.hudTools.AddMenuItem(HUDTOOLS_MENU_PLAYERS,"PLAYERS",true,true,250);
+               this.hudTools.AddMenuItem(HUDTOOLS_MENU_TEAM,"TEAM PANEL",true,true,250);
                this.hudTools.AddMenuItem(HUDTOOLS_MENU_PETS,"PETS",true,true,250);
             }
             else if(parentItem == HUDTOOLS_MENU_PLAYERS)
@@ -230,6 +265,13 @@ package
                   this.hudTools.AddMenuItem(option,HUDTOOLS_PETS_OPTIONS[option],true,true,250);
                }
             }
+            else if(parentItem == HUDTOOLS_MENU_TEAM)
+            {
+               for(option in HUDTOOLS_TEAM_OPTIONS)
+               {
+                  this.hudTools.AddMenuItem(option,HUDTOOLS_TEAM_OPTIONS[option],true,true,250);
+               }
+            }
             else if(HUDTOOLS_PLAYERS_OPTIONS[parentItem] != null)
             {
                this.hudTools.AddMenuItem(parentItem + "--1","true",!config.players[HUDTOOLS_PLAYERS_OPTIONS[parentItem]],false);
@@ -239,6 +281,11 @@ package
             {
                this.hudTools.AddMenuItem(parentItem + "--1","true",!config.pets[HUDTOOLS_PETS_OPTIONS[parentItem]],false);
                this.hudTools.AddMenuItem(parentItem + "--","false",config.pets[HUDTOOLS_PETS_OPTIONS[parentItem]],false);
+            }
+            else if(HUDTOOLS_TEAM_OPTIONS[parentItem] != null)
+            {
+               this.hudTools.AddMenuItem(parentItem + "--1","true",!config.teamPanel[HUDTOOLS_TEAM_OPTIONS[parentItem]],false);
+               this.hudTools.AddMenuItem(parentItem + "--","false",config.teamPanel[HUDTOOLS_TEAM_OPTIONS[parentItem]],false);
             }
          }
          catch(e:Error)
@@ -263,6 +310,11 @@ package
                {
                   config.pets[HUDTOOLS_PETS_OPTIONS[selectedItemSuboption[0]]] = Boolean(selectedItemSuboption[1]);
                   this.onPetMarkersPostUpdate();
+               }
+               else if(HUDTOOLS_TEAM_OPTIONS[selectedItemSuboption[0]])
+               {
+                  config.teamPanel[HUDTOOLS_TEAM_OPTIONS[selectedItemSuboption[0]]] = Boolean(selectedItemSuboption[1]);
+                  this.onPartyMenuListPreUpdate();
                }
             }
          }
@@ -291,6 +343,7 @@ package
                      HUDNameplatesConfig.init(jsonData);
                      onTeamMarkersPostUpdate();
                      onPetMarkersPostUpdate();
+                     onPartyMenuListPreUpdate();
                      lastConfigUpdateTime = getTimer();
                      lastConfig = loader.data;
                   }
@@ -442,6 +495,12 @@ package
                {
                   marker = markers[0];
                   isShown = false;
+                  if(cfg.isNW && marker.isHostile)
+                  {
+                     nameplate.isNuclearWinterMode = true;
+                     nameplate.inLOS = true;
+                     isShown = true;
+                  }
                   if(cfg.hideLevel)
                   {
                      nameplate.level = 0;
@@ -567,6 +626,65 @@ package
          catch(e:*)
          {
             ShowHUDMessage("onPetMarkersPostUpdate error: " + e);
+         }
+      }
+      
+      public function onPartyMenuListPreUpdate() : void
+      {
+         var cfg:*;
+         var member:*;
+         try
+         {
+            if(!config)
+            {
+               return;
+            }
+            cfg = config.teamPanel;
+            if(!cfg.enabled)
+            {
+               return;
+            }
+            if(this.PartyMenuList.data && this.PartyMenuList.data.members)
+            {
+               for each(member in this.PartyMenuList.data.members)
+               {
+                  if(member && member.isOnServer)
+                  {
+                     if(cfg.hideTitle)
+                     {
+                        member.name = member.name.split("<")[0];
+                     }
+                     if(cfg.hideLevel)
+                     {
+                        member.level = 0;
+                     }
+                     if(cfg.hideSharedPerk)
+                     {
+                        member.showSharedIcon = false;
+                     }
+                     if(cfg.hideInConversation)
+                     {
+                        member.isInConversation = false;
+                     }
+                     if(cfg.hideInDailyOp)
+                     {
+                        member.isInDailyOp = false;
+                     }
+                     if(cfg.hideInExpedition)
+                     {
+                        member.isInExpedition = false;
+                     }
+                     if(cfg.hideInRaid)
+                     {
+                        member.isInRaid = false;
+                     }
+                  }
+               }
+            }
+         }
+         catch(e:*)
+         {
+            ShowHUDMessage("onPartyMenuListPreUpdate error: " + e);
          }
       }
    }
