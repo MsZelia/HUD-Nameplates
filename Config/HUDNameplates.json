@@ -30,6 +30,25 @@
 		// hide (in conversation) text
 		"hideInConversation": true,
 	},
+	"teamPanel": {
+		// enable customization for team panel (bottom-left)
+		"enabled": true,
+		
+		// hide player titles
+		"hideTitle": true,
+		// hide player levels
+		"hideLevel": false,
+		// hide shared perk cards
+		"hideSharedPerk": false,
+		// hide (in conversation) text
+		"hideInConversation": true,
+		// hide (in daily op) text
+		"hideInDailyOp": false,
+		// hide (in expedition) text
+		"hideInExpedition": false,
+		// hide (in raid) text
+		"hideInRaid": false,
+	},
 	"pets": {
 		// enable customization for pet nameplates
 		"enabled": true,
