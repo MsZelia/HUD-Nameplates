@@ -1,5 +1,6 @@
 package
 {
+   import Shared.GlobalFunc;
    import utils.Parser;
    
    public class HUDNameplatesConfig
@@ -36,6 +37,7 @@ package
             config.players.hideTitle = true;
             config.players.hidePublicTeams = true;
             config.players.hideInConversation = true;
+            config.players.customColors = {"enabled":false};
          }
          else
          {
@@ -52,6 +54,13 @@ package
             config.players.hideTitle = Parser.parseBoolean(config.players.hideTitle,true);
             config.players.hidePublicTeams = Parser.parseBoolean(config.players.hidePublicTeams,true);
             config.players.hideInConversation = Parser.parseBoolean(config.players.hideInConversation,true);
+            config.players.customColors = config.players.customColors || {"enabled":false};
+            if(config.players.customColors.enabled)
+            {
+               config.players.customColors.defaultColor = uint(Parser.parsePositiveNumber(config.players.customColors.defaultColor,GlobalFunc.COLOR_TEXT_BODY));
+               config.players.customColors.teamColor = uint(Parser.parsePositiveNumber(config.players.customColors.teamColor,GlobalFunc.COLOR_TEXT_HEADER));
+               config.players.customColors.publicTeamColors = config.players.customColors.publicTeamColors || {};
+            }
          }
          if(!config.teamPanel)
          {

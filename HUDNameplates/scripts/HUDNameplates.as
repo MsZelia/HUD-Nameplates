@@ -101,6 +101,24 @@ package
       
       private static var TEAM_COLORS:Array = [16711680,65280,255,16776960,16711935,65535,16777215,16777215,16777215,16777215,16777215];
       
+      private static const PUBLIC_TEAMS_MAP:Object = {
+         "0":"private",
+         "1":"hunting",
+         "2":"roleplay",
+         "3":"events",
+         "4":"exploration",
+         "5":"building",
+         "6":"casual",
+         "7":"specialEvent",
+         "8":"extraTeam",
+         "9":"trading",
+         "10":"workshopRaid",
+         "11":"invalid",
+         "12":"dailyOps",
+         "13":"expeditions",
+         "14":"raids"
+      };
+      
       private var topLevel:* = null;
       
       private var updateColorTimer:*;
@@ -127,9 +145,11 @@ package
       
       private var PublicTeams:* = {};
       
-      private var isRequestRedraw:Boolean = false;
+      private var PublicTeamMembers:* = {};
       
-      private var count:uint = 0;
+      private var TeamMembers:* = {};
+      
+      private var ClonedNames:Array = [];
       
       public function HUDNameplates()
       {
@@ -476,6 +496,11 @@ package
          }
       }
       
+      public function trimTitle(name:String) : String
+      {
+         return name.split("<")[0];
+      }
+      
       public function onPublicTeamsDataUpdate(event:*) : void
       {
          var team:uint;
@@ -486,11 +511,13 @@ package
             if(event && event.data && event.data.publicTeams)
             {
                this.PublicTeams = {};
+               this.PublicTeamMembers = {};
                for(team in event.data.publicTeams)
                {
+                  this.PublicTeams[team] = PUBLIC_TEAMS_MAP[event.data.publicTeams[team].teamType];
                   for each(member in event.data.publicTeams[team].members)
                   {
-                     this.PublicTeams[member.playerName] = team;
+                     this.PublicTeamMembers[member.playerName] = team;
                   }
                }
             }
@@ -512,6 +539,10 @@ package
          var markers:*;
          var t1:*;
          var isInDopExpoRaid:Boolean;
+         var clone_tf:TextField;
+         var namegroup:*;
+         var displayName:String;
+         var useCustomColors:Boolean;
          try
          {
             t1 = getTimer();
@@ -526,9 +557,23 @@ package
             {
                return;
             }
+            useCustomColors = Boolean(cfg.customColors.enabled);
             isShown = false;
-            for each(nameplate in teamNameplates)
+            i = 0;
+            while(i < ClonedNames.length)
             {
+               ClonedNames[i].text = "";
+               i++;
+            }
+            i = 0;
+            for(i in teamNameplates)
+            {
+               nameplate = teamNameplates[i];
+               namegroup = nameplate.NamePlateNameGroup_mc;
+               if(useCustomColors && !(namegroup.getChildAt(namegroup.numChildren - 1) is TextField))
+               {
+                  ClonedNames.push(cloneTextField(namegroup.Name_tf));
+               }
                markers = this.TeamMarkers.data.Markers.filter(function(m:*):Boolean
                {
                   return m.entityID == nameplate.entityID;
@@ -536,6 +581,7 @@ package
                if(markers.length)
                {
                   marker = markers[0];
+                  displayName = marker.displayName;
                   isShown = false;
                   if(cfg.isNW && marker.isHostile)
                   {
@@ -549,7 +595,8 @@ package
                   }
                   if(cfg.hideTitle)
                   {
-                     nameplate.displayName = marker.displayName.split("<")[0];
+                     displayName = trimTitle(displayName);
+                     nameplate.displayName = displayName;
                   }
                   if(cfg.hideInConversation)
                   {
@@ -559,6 +606,10 @@ package
                   {
                      nameplate.isLocalPlayer = false;
                      isShown = true;
+                     if(cfg.debug)
+                     {
+                        nameplate.displayName = displayName + "|" + lastRenderTime + "ms";
+                     }
                   }
                   if(cfg.showDowned && marker.deadState == 1)
                   {
@@ -566,7 +617,7 @@ package
                      nameplate.inLOS = true;
                      isShown = true;
                   }
-                  if(cfg.showFriends && this.Friends[marker.displayName.split("<")[0]])
+                  if(cfg.showFriends && this.Friends[trimTitle(marker.displayName)])
                   {
                      nameplate.inLOS = true;
                      nameplate.isTeammate = true;
@@ -615,12 +666,20 @@ package
                         nameplate.inLOS = false;
                      }
                   }
+                  if(useCustomColors)
+                  {
+                     clone_tf = namegroup.getChildAt(namegroup.numChildren - 1);
+                     clone_tf.text = displayName;
+                     clone_tf.x = namegroup.Name_tf.x;
+                     namegroup.Name_tf.visible = false;
+                  }
                }
                else
                {
                   ShowHUDMessage("Error: Marker not found!");
                }
             }
+            this.applyColors();
             this.lastRenderTime = getTimer() - t1;
          }
          catch(e:*)
@@ -677,6 +736,17 @@ package
          var member:*;
          try
          {
+            this.TeamMembers = {};
+            if(this.PartyMenuList.data && this.PartyMenuList.data.members)
+            {
+               for each(member in this.PartyMenuList.data.members)
+               {
+                  if(member && member.isOnServer)
+                  {
+                     this.TeamMembers[trimTitle(member.name)] = true;
+                  }
+               }
+            }
             if(!config)
             {
                return;
@@ -694,7 +764,7 @@ package
                   {
                      if(cfg.hideTitle)
                      {
-                        member.name = member.name.split("<")[0];
+                        member.name = trimTitle(member.name);
                      }
                      if(cfg.hideLevel)
                      {
@@ -730,33 +800,73 @@ package
          }
       }
       
+      private function cloneTextField(textField:TextField) : TextField
+      {
+         var item:XML;
+         var clone:TextField = new TextField();
+         var description:XML = describeType(textField);
+         for each(item in description.accessor)
+         {
+            if(item.@access != "readonly")
+            {
+               try
+               {
+                  clone[item.@name] = textField[item.@name];
+               }
+               catch(error:Error)
+               {
+               }
+            }
+         }
+         clone.defaultTextFormat = textField.getTextFormat();
+         clone.setTextFormat(textField.getTextFormat());
+         clone.filters = textField.filters;
+         if(textField.parent)
+         {
+            textField.parent.addChild(clone);
+         }
+         return clone;
+      }
+      
       public function applyColors() : void
       {
-         var teamNameplates:*;
-         var nameplate:*;
          var playerName:String;
-         var color:uint;
+         var Name_tf:TextField;
+         var cfg:*;
+         var teamColor:*;
          try
          {
             if(!this.config)
             {
                return;
             }
-            teamNameplates = this.TeamNameplates;
-            if(!teamNameplates)
+            cfg = this.config.players.customColors;
+            if(!cfg.enabled)
             {
                return;
             }
-            for each(nameplate in teamNameplates)
+            for each(Name_tf in ClonedNames)
             {
-               playerName = nameplate.Name_tf.text;
-               if(PublicTeams[playerName] != null)
+               playerName = Name_tf.text.split(" ")[0];
+               if(cfg.useTeamColor && TeamMembers[playerName])
                {
-                  color = uint(TEAM_COLORS[PublicTeams[playerName]]);
-                  if(color != nameplate.Name_tf.textColor)
+                  Name_tf.textColor = cfg.teamColor;
+               }
+               else if(PublicTeamMembers[playerName] != null)
+               {
+                  teamColor = cfg.publicTeamColors[PublicTeams[PublicTeamMembers[playerName]]];
+                  if(teamColor != null)
                   {
-                     nameplate.Name_tf.textColor = color;
+                     Name_tf.textColor = teamColor;
                   }
+                  else
+                  {
+                     Name_tf.textColor = cfg.defaultColor;
+                  }
+               }
+               else
+               {
+                  Name_tf.textColor = cfg.defaultColor;
                }
             }
          }
