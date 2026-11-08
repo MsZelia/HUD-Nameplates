@@ -99,7 +99,11 @@ package
       
       private static var HUDTOOLS_TEAM_OPTIONS:* = null;
       
+      private static var TEAM_COLORS:Array = [16711680,65280,255,16776960,16711935,65535,16777215,16777215,16777215,16777215,16777215];
+      
       private var topLevel:* = null;
+      
+      private var updateColorTimer:*;
       
       private var configTimer:Timer;
       
@@ -120,6 +124,12 @@ package
       private var PartyMenuList:*;
       
       private var Friends:* = {};
+      
+      private var PublicTeams:* = {};
+      
+      private var isRequestRedraw:Boolean = false;
+      
+      private var count:uint = 0;
       
       public function HUDNameplates()
       {
@@ -149,6 +159,7 @@ package
                this.hudTools = new SharedHUDTools(MOD_NAME);
                this.hudTools.RegisterMenu(this.onBuildMenu,this.onSelectMenu);
                BSUIDataManager.Subscribe("FriendsListDataCold",this.onFriendsListDataUpdate);
+               BSUIDataManager.Subscribe("PublicTeamsData",this.onPublicTeamsDataUpdate);
                this.TeamMarkers = BSUIDataManager.GetDataFromClient("TeamMarkers");
                this.TeamMarkers.addEventListener(Event.CHANGE,this.onTeamMarkersPostUpdate,false,int.MIN_VALUE);
                this.PetMarkers = BSUIDataManager.GetDataFromClient("PetMarkers");
@@ -156,7 +167,7 @@ package
                this.PartyMenuList = BSUIDataManager.GetDataFromClient("PartyMenuList");
                this.PartyMenuList.addEventListener(Event.CHANGE,this.onPartyMenuListPreUpdate,false,int.MAX_VALUE);
                this.QuestTrackerProvider = BSUIDataManager.GetDataFromClient("QuestTrackerProvider");
-               this.initConfigTimer();
+               this.initTimers();
             }
             else
             {
@@ -185,11 +196,17 @@ package
          }
       }
       
-      public function initConfigTimer() : void
+      public function initTimers() : void
       {
          this.configTimer = new Timer(CONFIG_RELOAD_TIME);
          this.configTimer.addEventListener(TimerEvent.TIMER,this.loadConfig,false,0,true);
          this.configTimer.start();
+         this.updateColorTimer = new Timer(20);
+         this.updateColorTimer.addEventListener(TimerEvent.TIMER,this.applyColors,false,0,true);
+         if(false)
+         {
+            this.updateColorTimer.start();
+         }
       }
       
       private function initHUDToolsOptions() : void
@@ -459,6 +476,31 @@ package
          }
       }
       
+      public function onPublicTeamsDataUpdate(event:*) : void
+      {
+         var team:uint;
+         var member:*;
+         var str:String;
+         try
+         {
+            if(event && event.data && event.data.publicTeams)
+            {
+               this.PublicTeams = {};
+               for(team in event.data.publicTeams)
+               {
+                  for each(member in event.data.publicTeams[team].members)
+                  {
+                     this.PublicTeams[member.playerName] = team;
+                  }
+               }
+            }
+         }
+         catch(e:*)
+         {
+            ShowHUDMessage("onPublicTeamsDataUpdate error: " + e);
+         }
+      }
+      
       public function onTeamMarkersPostUpdate() : void
       {
          var isShown:Boolean;
@@ -685,6 +727,42 @@ package
          catch(e:*)
          {
             ShowHUDMessage("onPartyMenuListPreUpdate error: " + e);
+         }
+      }
+      
+      public function applyColors() : void
+      {
+         var teamNameplates:*;
+         var nameplate:*;
+         var playerName:String;
+         var color:uint;
+         try
+         {
+            if(!this.config)
+            {
+               return;
+            }
+            teamNameplates = this.TeamNameplates;
+            if(!teamNameplates)
+            {
+               return;
+            }
+            for each(nameplate in teamNameplates)
+            {
+               playerName = nameplate.Name_tf.text;
+               if(PublicTeams[playerName] != null)
+               {
+                  color = uint(TEAM_COLORS[PublicTeams[playerName]]);
+                  if(color != nameplate.Name_tf.textColor)
+                  {
+                     nameplate.Name_tf.textColor = color;
+                  }
+               }
+            }
+         }
+         catch(e:*)
+         {
+            ShowHUDMessage("applyColors error: " + e);
          }
       }
    }
