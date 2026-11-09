@@ -716,24 +716,21 @@ package
          {
             cfg = this.config.players.customFormats;
             formats = cfg.formats;
-            if(!marker.isLocalPlayer)
+            if(marker.isLocalPlayer)
             {
-               if(this.Friends[playerName])
-               {
-                  format = formats["friend"];
-               }
-               else if(marker.isTeammate)
-               {
-                  format = formats["teammate"];
-               }
-               else
-               {
-                  format = playerName;
-               }
+               format = formats["self"];
             }
-            else
+            if(!format && marker.isHostile)
             {
-               format = playerName;
+               format = formats["hostile"];
+            }
+            if(!format && this.Friends[playerName])
+            {
+               format = formats["friend"];
+            }
+            if(!format && marker.isTeammate)
+            {
+               format = formats["teammate"];
             }
             return format || playerName;
          }
