@@ -29,6 +29,70 @@
 		"hidePublicTeams": true,
 		// hide (in conversation) text
 		"hideInConversation": true,
+		
+		// custom formats for player nameplates
+		"customFormats": {
+			// enable custom formats
+			"enabled": true,
+			
+			// custom player formats; hostile/self/friend/teammate
+			// glyphs:	¢ atoms, ± caps, ¾ c square, ¬ legendary, § unique, ¼ fo1st, ¶ perk pack
+			//			¤ biohazard, · crosshair?, ½ set bonus, ¹ set bonus active, ² speaker
+			"formats": {
+				"hostile": "‼ {playerName} ‼",
+				"self": "¬{playerName}¬",
+				"friend": "[F]{playerName}",
+				"teammate": "[T]{playerName}",
+			},
+			
+			// enable custom formats for different team types
+			"useTeamTypeFormats": false,
+			// enable custom team formats for your own team 
+			"useTeamTypeFormatsForOwnTeam": false,
+			// custom team type formats
+			"teamTypeFormats": {
+				"hunting": "{playerName} [HNT]",
+				"roleplay": "{playerName} [RP]",
+				"events": "{playerName} [EV]",
+				"exploration": "{playerName} [XPL]",
+				"building": "{playerName} [BLD]",
+				"casual": "{playerName} [CSL]",
+				"dailyOps": "{playerName} [DOP]",
+				"expeditions": "{playerName} [XPO]",
+				"raids": "{playerName} [RD]",
+			},
+		},
+		
+		// custom colors for player nameplates
+		"customColors": {
+			// enable custom colors
+			"enabled": true,
+			
+			// default color, used for players without a team or for disabled options below
+			"defaultColor": "0xffffcb",
+			
+			// custom color for wanted players
+			"useHostileColor": true,
+			"hostileColor": "0xcc0000",
+			
+			// custom color for teammates, if disabled it will use publicTeamTypeColors
+			"useTeamColor": false,
+			"teamColor": "0xf5cb5b",
+			
+			// custom colors for public team members, based on team type
+			"usePublicTeamTypeColors": true,
+			"publicTeamTypeColors": {
+				"hunting": "0x77ff77",
+				"roleplay": "0xffbb99",
+				"events": "0xffff55",
+				"exploration": "0x44aa44",
+				"building": "0x9999ff",
+				"casual": "0x77aaff",
+				"dailyOps": "0x77ffff",
+				"expeditions": "0xffaa44",
+				"raids": "0xff7777",
+			},
+		},
 	},
 	"teamPanel": {
 		// enable customization for team panel (bottom-left)
