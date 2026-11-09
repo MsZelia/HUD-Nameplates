@@ -673,7 +673,7 @@ package
                      namegroup.Name_tf.visible = false;
                      if(useCustomFormats)
                      {
-                        displayName = getCustomFormat(displayName,marker).replace(STRING_PLAYER_NAME,playerName);
+                        displayName = getCustomFormat(playerName,marker).replace(STRING_PLAYER_NAME,playerName);
                         clone_tf.text = displayName;
                         if(!useCustomColors)
                         {
@@ -682,7 +682,10 @@ package
                      }
                      if(useCustomColors)
                      {
-                        clone_tf.text = displayName;
+                        if(!useCustomFormats)
+                        {
+                           clone_tf.text = playerName;
+                        }
                         clone_tf.textColor = getCustomColor(playerName,marker.isHostile);
                      }
                   }
@@ -704,7 +707,7 @@ package
          }
       }
       
-      public function getCustomFormat(displayName:String, marker:Object) : String
+      public function getCustomFormat(playerName:String, marker:Object) : String
       {
          var cfg:*;
          var formats:*;
@@ -715,7 +718,7 @@ package
             formats = cfg.formats;
             if(!marker.isLocalPlayer)
             {
-               if(marker.isFriend || marker.isFriendInvitePending)
+               if(this.Friends[playerName])
                {
                   format = formats["friend"];
                }
@@ -725,20 +728,20 @@ package
                }
                else
                {
-                  format = displayName;
+                  format = playerName;
                }
             }
             else
             {
-               format = displayName;
+               format = playerName;
             }
-            return format || displayName;
+            return format || playerName;
          }
          catch(e:*)
          {
             ShowHUDMessage("getCustomFormat error: " + e);
          }
-         return displayName;
+         return playerName;
       }
       
       public function getCustomColor(playerName:String, isHostile:Boolean) : uint
@@ -748,7 +751,7 @@ package
          try
          {
             cfg = this.config.players.customColors;
-            if(cfg.useTeamColor && TeamMembers[playerName])
+            if(cfg.useTeamColor && this.TeamMembers[playerName])
             {
                return cfg.teamColor;
             }
@@ -756,9 +759,9 @@ package
             {
                return cfg.hostileColor;
             }
-            if(cfg.usePublicTeamColors && PublicTeamMembers[playerName] != null)
+            if(cfg.usePublicTeamColors && this.PublicTeamMembers[playerName] != null)
             {
-               teamColor = cfg.publicTeamColors[PublicTeams[PublicTeamMembers[playerName]]];
+               teamColor = cfg.publicTeamColors[this.PublicTeams[this.PublicTeamMembers[playerName]]];
                if(teamColor != null)
                {
                   return teamColor;
