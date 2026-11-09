@@ -38,6 +38,7 @@ package
             config.players.hidePublicTeams = true;
             config.players.hideInConversation = true;
             config.players.customColors = {"enabled":false};
+            config.players.customFormats = {"enabled":false};
          }
          else
          {
@@ -60,6 +61,11 @@ package
                config.players.customColors.defaultColor = uint(Parser.parsePositiveNumber(config.players.customColors.defaultColor,GlobalFunc.COLOR_TEXT_BODY));
                config.players.customColors.teamColor = uint(Parser.parsePositiveNumber(config.players.customColors.teamColor,GlobalFunc.COLOR_TEXT_HEADER));
                config.players.customColors.publicTeamColors = config.players.customColors.publicTeamColors || {};
+            }
+            config.players.customFormats = config.players.customFormats || {"enabled":false};
+            if(config.players.customFormats.enabled)
+            {
+               config.players.customFormats.formats = config.players.customFormats.formats || {};
             }
          }
          if(!config.teamPanel)

@@ -93,6 +93,8 @@ package
       
       private static const HUDTOOLS_MENU_TEAM_RAID:String = MOD_NAME + "_TEAM_RAID";
       
+      private static const STRING_PLAYER_NAME:String = "{playerName}";
+      
       private static var HUDTOOLS_PLAYERS_OPTIONS:* = null;
       
       private static var HUDTOOLS_PETS_OPTIONS:* = null;
@@ -120,8 +122,6 @@ package
       };
       
       private var topLevel:* = null;
-      
-      private var updateColorTimer:*;
       
       private var configTimer:Timer;
       
@@ -221,12 +221,6 @@ package
          this.configTimer = new Timer(CONFIG_RELOAD_TIME);
          this.configTimer.addEventListener(TimerEvent.TIMER,this.loadConfig,false,0,true);
          this.configTimer.start();
-         this.updateColorTimer = new Timer(20);
-         this.updateColorTimer.addEventListener(TimerEvent.TIMER,this.applyColors,false,0,true);
-         if(false)
-         {
-            this.updateColorTimer.start();
-         }
       }
       
       private function initHUDToolsOptions() : void
@@ -542,7 +536,10 @@ package
          var clone_tf:TextField;
          var namegroup:*;
          var displayName:String;
+         var playerName:String;
          var useCustomColors:Boolean;
+         var useCustomFormats:Boolean;
+         var useCustomTF:Boolean;
          try
          {
             t1 = getTimer();
@@ -558,6 +555,8 @@ package
                return;
             }
             useCustomColors = Boolean(cfg.customColors.enabled);
+            useCustomFormats = Boolean(cfg.customFormats.enabled);
+            useCustomTF = useCustomColors || useCustomFormats;
             isShown = false;
             i = 0;
             while(i < ClonedNames.length)
@@ -570,7 +569,7 @@ package
             {
                nameplate = teamNameplates[i];
                namegroup = nameplate.NamePlateNameGroup_mc;
-               if(useCustomColors && !(namegroup.getChildAt(namegroup.numChildren - 1) is TextField))
+               if(useCustomTF && !(namegroup.getChildAt(namegroup.numChildren - 1) is TextField))
                {
                   ClonedNames.push(cloneTextField(namegroup.Name_tf));
                }
@@ -582,6 +581,7 @@ package
                {
                   marker = markers[0];
                   displayName = marker.displayName;
+                  playerName = trimTitle(displayName);
                   isShown = false;
                   if(cfg.isNW && marker.isHostile)
                   {
@@ -595,7 +595,7 @@ package
                   }
                   if(cfg.hideTitle)
                   {
-                     displayName = trimTitle(displayName);
+                     displayName = playerName;
                      nameplate.displayName = displayName;
                   }
                   if(cfg.hideInConversation)
@@ -617,7 +617,7 @@ package
                      nameplate.inLOS = true;
                      isShown = true;
                   }
-                  if(cfg.showFriends && this.Friends[trimTitle(marker.displayName)])
+                  if(cfg.showFriends && this.Friends[playerName])
                   {
                      nameplate.inLOS = true;
                      nameplate.isTeammate = true;
@@ -666,12 +666,29 @@ package
                         nameplate.inLOS = false;
                      }
                   }
-                  if(useCustomColors)
+                  if(useCustomTF)
                   {
                      clone_tf = namegroup.getChildAt(namegroup.numChildren - 1);
-                     clone_tf.text = displayName;
                      clone_tf.x = namegroup.Name_tf.x;
                      namegroup.Name_tf.visible = false;
+                     if(useCustomFormats)
+                     {
+                        displayName = getCustomFormat(displayName,marker).replace(STRING_PLAYER_NAME,playerName);
+                        clone_tf.text = displayName;
+                        if(!useCustomColors)
+                        {
+                           clone_tf.textColor = namegroup.Name_tf.textColor;
+                        }
+                     }
+                     if(useCustomColors)
+                     {
+                        clone_tf.text = displayName;
+                        clone_tf.textColor = getCustomColor(playerName,marker.isHostile);
+                     }
+                  }
+                  else
+                  {
+                     namegroup.Name_tf.visible = true;
                   }
                }
                else
@@ -679,13 +696,82 @@ package
                   ShowHUDMessage("Error: Marker not found!");
                }
             }
-            this.applyColors();
             this.lastRenderTime = getTimer() - t1;
          }
          catch(e:*)
          {
             ShowHUDMessage("onTeamMarkersPostUpdate error: " + e);
          }
+      }
+      
+      public function getCustomFormat(displayName:String, marker:Object) : String
+      {
+         var cfg:*;
+         var formats:*;
+         var format:String;
+         try
+         {
+            cfg = this.config.players.customFormats;
+            formats = cfg.formats;
+            if(!marker.isLocalPlayer)
+            {
+               if(marker.isFriend || marker.isFriendInvitePending)
+               {
+                  format = formats["friend"];
+               }
+               else if(marker.isTeammate)
+               {
+                  format = formats["teammate"];
+               }
+               else
+               {
+                  format = displayName;
+               }
+            }
+            else
+            {
+               format = displayName;
+            }
+            return format || displayName;
+         }
+         catch(e:*)
+         {
+            ShowHUDMessage("getCustomFormat error: " + e);
+         }
+         return displayName;
+      }
+      
+      public function getCustomColor(playerName:String, isHostile:Boolean) : uint
+      {
+         var cfg:*;
+         var teamColor:*;
+         try
+         {
+            cfg = this.config.players.customColors;
+            if(cfg.useTeamColor && TeamMembers[playerName])
+            {
+               return cfg.teamColor;
+            }
+            if(cfg.useHostileColor && isHostile)
+            {
+               return cfg.hostileColor;
+            }
+            if(cfg.usePublicTeamColors && PublicTeamMembers[playerName] != null)
+            {
+               teamColor = cfg.publicTeamColors[PublicTeams[PublicTeamMembers[playerName]]];
+               if(teamColor != null)
+               {
+                  return teamColor;
+               }
+               return cfg.defaultColor;
+            }
+            return cfg.defaultColor;
+         }
+         catch(e:*)
+         {
+            ShowHUDMessage("getCustomColor error: " + e);
+         }
+         return cfg.defaultColor;
       }
       
       public function onPetMarkersPostUpdate() : void
@@ -826,54 +912,6 @@ package
             textField.parent.addChild(clone);
          }
          return clone;
-      }
-      
-      public function applyColors() : void
-      {
-         var playerName:String;
-         var Name_tf:TextField;
-         var cfg:*;
-         var teamColor:*;
-         try
-         {
-            if(!this.config)
-            {
-               return;
-            }
-            cfg = this.config.players.customColors;
-            if(!cfg.enabled)
-            {
-               return;
-            }
-            for each(Name_tf in ClonedNames)
-            {
-               playerName = Name_tf.text.split(" ")[0];
-               if(cfg.useTeamColor && TeamMembers[playerName])
-               {
-                  Name_tf.textColor = cfg.teamColor;
-               }
-               else if(PublicTeamMembers[playerName] != null)
-               {
-                  teamColor = cfg.publicTeamColors[PublicTeams[PublicTeamMembers[playerName]]];
-                  if(teamColor != null)
-                  {
-                     Name_tf.textColor = teamColor;
-                  }
-                  else
-                  {
-                     Name_tf.textColor = cfg.defaultColor;
-                  }
-               }
-               else
-               {
-                  Name_tf.textColor = cfg.defaultColor;
-               }
-            }
-         }
-         catch(e:*)
-         {
-            ShowHUDMessage("applyColors error: " + e);
-         }
       }
    }
 }
