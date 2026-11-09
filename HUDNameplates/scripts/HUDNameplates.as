@@ -103,7 +103,7 @@ package
       
       private static var TEAM_COLORS:Array = [16711680,65280,255,16776960,16711935,65535,16777215,16777215,16777215,16777215,16777215];
       
-      private static const PUBLIC_TEAMS_MAP:Object = {
+      private static const PUBLIC_TEAMS_TYPES:Object = {
          "0":"private",
          "1":"hunting",
          "2":"roleplay",
@@ -508,7 +508,7 @@ package
                this.PublicTeamMembers = {};
                for(team in event.data.publicTeams)
                {
-                  this.PublicTeams[team] = PUBLIC_TEAMS_MAP[event.data.publicTeams[team].teamType];
+                  this.PublicTeams[team] = PUBLIC_TEAMS_TYPES[event.data.publicTeams[team].teamType];
                   for each(member in event.data.publicTeams[team].members)
                   {
                      this.PublicTeamMembers[member.playerName] = team;
@@ -712,27 +712,37 @@ package
          var cfg:*;
          var formats:*;
          var format:String;
+         var teamType:*;
          try
          {
             cfg = this.config.players.customFormats;
+            format = STRING_PLAYER_NAME;
             formats = cfg.formats;
+            if(marker.isHostile)
+            {
+               format = format.replace(STRING_PLAYER_NAME,formats["hostile"]);
+            }
+            if(this.Friends[playerName])
+            {
+               format = format.replace(STRING_PLAYER_NAME,formats["friend"]);
+            }
             if(marker.isLocalPlayer)
             {
-               format = formats["self"];
+               format = format.replace(STRING_PLAYER_NAME,formats["self"]);
             }
-            if(!format && marker.isHostile)
+            if(marker.isTeammate && !marker.isLocalPlayer)
             {
-               format = formats["hostile"];
+               format = format.replace(STRING_PLAYER_NAME,formats["teammate"]);
             }
-            if(!format && this.Friends[playerName])
+            if(cfg.useTeamTypeFormats && (!marker.isTeammate || cfg.useTeamTypeFormatsForOwnTeam))
             {
-               format = formats["friend"];
+               teamType = PUBLIC_TEAMS_TYPES[marker.teamType];
+               if(teamType != null && cfg.teamTypeFormats[teamType] != null)
+               {
+                  format = format.replace(STRING_PLAYER_NAME,cfg.teamTypeFormats[teamType]);
+               }
             }
-            if(!format && marker.isTeammate)
-            {
-               format = formats["teammate"];
-            }
-            return format || playerName;
+            return format;
          }
          catch(e:*)
          {
@@ -756,9 +766,9 @@ package
             {
                return cfg.hostileColor;
             }
-            if(cfg.usePublicTeamColors && this.PublicTeamMembers[playerName] != null)
+            if(cfg.usePublicTeamTypeColors && this.PublicTeamMembers[playerName] != null)
             {
-               teamColor = cfg.publicTeamColors[this.PublicTeams[this.PublicTeamMembers[playerName]]];
+               teamColor = cfg.publicTeamTypeColors[this.PublicTeams[this.PublicTeamMembers[playerName]]];
                if(teamColor != null)
                {
                   return teamColor;

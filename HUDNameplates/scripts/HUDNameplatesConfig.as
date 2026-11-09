@@ -60,12 +60,14 @@ package
             {
                config.players.customColors.defaultColor = uint(Parser.parsePositiveNumber(config.players.customColors.defaultColor,GlobalFunc.COLOR_TEXT_BODY));
                config.players.customColors.teamColor = uint(Parser.parsePositiveNumber(config.players.customColors.teamColor,GlobalFunc.COLOR_TEXT_HEADER));
-               config.players.customColors.publicTeamColors = config.players.customColors.publicTeamColors || {};
+               config.players.customColors.hostileColor = uint(Parser.parsePositiveNumber(config.players.customColors.hostileColor,GlobalFunc.COLOR_TEXT_ENEMY));
+               config.players.customColors.publicTeamTypeColors = config.players.customColors.publicTeamTypeColors || {};
             }
             config.players.customFormats = config.players.customFormats || {"enabled":false};
             if(config.players.customFormats.enabled)
             {
                config.players.customFormats.formats = config.players.customFormats.formats || {};
+               config.players.customFormats.teamTypeFormats = config.players.customFormats.teamTypeFormats || {};
             }
          }
          if(!config.teamPanel)
