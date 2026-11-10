@@ -23,7 +23,7 @@ package
       
       public static const MOD_NAME:String = "HUDNameplates";
       
-      public static const MOD_VERSION:String = "1.2.0";
+      public static const MOD_VERSION:String = "1.3.1";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -540,9 +540,12 @@ package
          var useCustomColors:Boolean;
          var useCustomFormats:Boolean;
          var useCustomTF:Boolean;
+         var log:String;
+         var isTeammateHidden:Boolean;
          try
          {
             t1 = getTimer();
+            log = "";
             isInDopExpoRaid = this.IsInDailyOps || this.IsInExpedition || this.IsInRaid;
             teamNameplates = this.TeamNameplates;
             if(!config || !teamNameplates)
@@ -582,9 +585,12 @@ package
                   marker = markers[0];
                   displayName = marker.displayName;
                   playerName = trimTitle(displayName);
+                  log += playerName + ":";
                   isShown = false;
+                  isTeammateHidden = false;
                   if(cfg.isNW && marker.isHostile)
                   {
+                     log += "isNW,";
                      nameplate.isNuclearWinterMode = true;
                      nameplate.inLOS = true;
                      isShown = true;
@@ -619,6 +625,7 @@ package
                   }
                   if(cfg.showFriends && this.Friends[playerName])
                   {
+                     log += "showFriends,";
                      nameplate.inLOS = true;
                      nameplate.isTeammate = true;
                      nameplate.playerState = "teammate";
@@ -632,6 +639,8 @@ package
                   {
                      if(!isInDopExpoRaid || !cfg.showTeammatesInDopExpoRaid)
                      {
+                        log += "showTeammates,";
+                        isTeammateHidden = true;
                         nameplate.isTeammate = false;
                         nameplate.playerState = marker.isEventGroup ? "eventgroupmate" : (marker.isPvPFlagged ? "potentialHostile" : "nonhostile");
                      }
@@ -640,6 +649,7 @@ package
                   {
                      if(marker.isEventGroup && (!marker.isTeammate || !cfg.showTeammates))
                      {
+                        log += "minimizeEventOther,";
                         nameplate.inLOS = false;
                         isShown = true;
                      }
@@ -648,6 +658,7 @@ package
                   {
                      if(marker.isEventGroup && (!marker.isTeammate || !cfg.showTeammates))
                      {
+                        log += "hideEventOther,";
                         nameplate.inLOS = false;
                         nameplate.isEventGroup = false;
                         nameplate.playerState = marker.isPvPFlagged ? "potentialHostile" : "nonhostile";
@@ -656,13 +667,15 @@ package
                   }
                   if(!isShown && cfg.showAll)
                   {
+                     log += "showAll,";
                      nameplate.inLOS = true;
                      isShown = true;
                   }
                   if(!isShown && cfg.hideOther)
                   {
-                     if(!marker.isTeammate)
+                     if(!marker.isTeammate || isTeammateHidden)
                      {
+                        log += "hideOther || ";
                         nameplate.inLOS = false;
                      }
                   }
@@ -700,6 +713,10 @@ package
                }
             }
             this.lastRenderTime = getTimer() - t1;
+            if(cfg.debug)
+            {
+               ShowHUDMessage(this.lastRenderTime + "ms || " + log);
+            }
          }
          catch(e:*)
          {
