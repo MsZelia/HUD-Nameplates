@@ -35,6 +35,9 @@
 			// enable custom formats
 			"enabled": true,
 			
+			// show your character name instead of account name
+			"showCharName": false,
+			
 			// custom player formats; hostile/self/friend/teammate
 			// glyphs:	¢ atoms, ± caps, ¾ c square, ¬ legendary, § unique, ¼ fo1st, ¶ perk pack
 			//			¤ biohazard, · crosshair?, ½ set bonus, ¹ set bonus active, ² speaker
