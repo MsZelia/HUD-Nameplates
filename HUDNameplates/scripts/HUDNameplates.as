@@ -23,7 +23,7 @@ package
       
       public static const MOD_NAME:String = "HUDNameplates";
       
-      public static const MOD_VERSION:String = "1.3.1";
+      public static const MOD_VERSION:String = "1.3.2";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -141,6 +141,8 @@ package
       
       private var PartyMenuList:*;
       
+      private var CharacterNameData:*;
+      
       private var Friends:* = {};
       
       private var PublicTeams:* = {};
@@ -187,6 +189,7 @@ package
                this.PartyMenuList = BSUIDataManager.GetDataFromClient("PartyMenuList");
                this.PartyMenuList.addEventListener(Event.CHANGE,this.onPartyMenuListPreUpdate,false,int.MAX_VALUE);
                this.QuestTrackerProvider = BSUIDataManager.GetDataFromClient("QuestTrackerProvider");
+               this.CharacterNameData = BSUIDataManager.GetDataFromClient("CharacterNameData");
                this.initTimers();
             }
             else
@@ -423,6 +426,11 @@ package
       public function get PetNameplates() : *
       {
          return this.topLevel.PetMarkerBase ? this.topLevel.PetMarkerBase.PetNameplates : null;
+      }
+      
+      public function get CharacterName() : String
+      {
+         return CharacterNameData.data.characterName;
       }
       
       public function get IsInDailyOps() : Boolean
@@ -686,7 +694,7 @@ package
                      namegroup.Name_tf.visible = false;
                      if(useCustomFormats)
                      {
-                        displayName = getCustomFormat(playerName,marker).replace(STRING_PLAYER_NAME,playerName);
+                        displayName = getCustomFormat(playerName,marker).replace(STRING_PLAYER_NAME,marker.isLocalPlayer && cfg.customFormats.showCharName ? this.CharacterName : playerName);
                         clone_tf.text = displayName;
                         if(!useCustomColors)
                         {
