@@ -783,7 +783,7 @@ package
             {
                format = format.replace(STRING_PLAYER_NAME,formats["hostile"]);
             }
-            if(this.TextChatUsers[playerName] && formats["textChat"] != null)
+            if(this.TextChatUsers[playerName] != null && formats["textChat"] != null)
             {
                format = format.replace(STRING_PLAYER_NAME,formats["textChat"]);
             }
@@ -831,7 +831,7 @@ package
             {
                return cfg.friendColor;
             }
-            if(cfg.useTextChatColor && this.TextChatUsers[playerName])
+            if(cfg.useTextChatColor && this.TextChatUsers[playerName] != null)
             {
                return cfg.textChatColor;
             }
