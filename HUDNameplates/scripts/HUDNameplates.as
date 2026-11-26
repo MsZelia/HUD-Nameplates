@@ -23,7 +23,7 @@ package
       
       public static const MOD_NAME:String = "HUDNameplates";
       
-      public static const MOD_VERSION:String = "1.3.2";
+      public static const MOD_VERSION:String = "1.4.0";
       
       public static const FULL_MOD_NAME:String = MOD_NAME + " " + MOD_VERSION;
       
@@ -152,6 +152,10 @@ package
       private var TeamMembers:* = {};
       
       private var ClonedNames:Array = [];
+      
+      private var HUDMenu:Class;
+      
+      private var isTextChat:* = null;
       
       public function HUDNameplates()
       {
@@ -478,6 +482,25 @@ package
          return false;
       }
       
+      public function get IsTextChat() : Boolean
+      {
+         if(this.isTextChat == null)
+         {
+            this.HUDMenu = getDefinitionByName(TITLE_HUDMENU) as Class;
+            this.isTextChat = this.HUDMenu != null && this.HUDMenu.ServerPlayers != null;
+         }
+         return this.isTextChat;
+      }
+      
+      public function get TextChatUsers() : *
+      {
+         if(this.IsTextChat)
+         {
+            return this.HUDMenu.ServerPlayers;
+         }
+         return {};
+      }
+      
       public function onFriendsListDataUpdate(event:*) : void
       {
          var i:int;
@@ -580,7 +603,7 @@ package
             {
                nameplate = teamNameplates[i];
                namegroup = nameplate.NamePlateNameGroup_mc;
-               if(useCustomTF && !(namegroup.getChildAt(namegroup.numChildren - 1) is TextField))
+               if(useCustomTF && namegroup.numChildren - int(this.IsTextChat) == 4)
                {
                   ClonedNames.push(cloneTextField(namegroup.Name_tf));
                }
@@ -743,19 +766,23 @@ package
             cfg = this.config.players.customFormats;
             format = STRING_PLAYER_NAME;
             formats = cfg.formats;
-            if(marker.isHostile)
+            if(marker.isHostile && formats["hostile"] != null)
             {
                format = format.replace(STRING_PLAYER_NAME,formats["hostile"]);
             }
-            if(this.Friends[playerName])
+            if(this.TextChatUsers[playerName] && formats["textChat"] != null)
+            {
+               format = format.replace(STRING_PLAYER_NAME,formats["textChat"]);
+            }
+            if(this.Friends[playerName] && formats["friend"] != null)
             {
                format = format.replace(STRING_PLAYER_NAME,formats["friend"]);
             }
-            if(marker.isLocalPlayer)
+            if(marker.isLocalPlayer && formats["self"] != null)
             {
                format = format.replace(STRING_PLAYER_NAME,formats["self"]);
             }
-            if(marker.isTeammate && !marker.isLocalPlayer)
+            if(marker.isTeammate && !marker.isLocalPlayer && formats["teammate"] != null)
             {
                format = format.replace(STRING_PLAYER_NAME,formats["teammate"]);
             }
