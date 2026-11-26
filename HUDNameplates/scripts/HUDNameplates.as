@@ -810,13 +810,21 @@ package
          try
          {
             cfg = this.config.players.customColors;
-            if(cfg.useTeamColor && this.TeamMembers[playerName])
-            {
-               return cfg.teamColor;
-            }
             if(cfg.useHostileColor && isHostile)
             {
                return cfg.hostileColor;
+            }
+            if(cfg.useFriendColor && this.Friends[playerName])
+            {
+               return cfg.friendColor;
+            }
+            if(cfg.useTextChatColor && this.TextChatUsers[playerName])
+            {
+               return cfg.textChatColor;
+            }
+            if(cfg.useTeamColor && this.TeamMembers[playerName])
+            {
+               return cfg.teamColor;
             }
             if(cfg.usePublicTeamTypeColors && this.PublicTeamMembers[playerName] != null)
             {
