@@ -61,6 +61,9 @@ package
                config.players.customColors.defaultColor = uint(Parser.parsePositiveNumber(config.players.customColors.defaultColor,GlobalFunc.COLOR_TEXT_BODY));
                config.players.customColors.teamColor = uint(Parser.parsePositiveNumber(config.players.customColors.teamColor,GlobalFunc.COLOR_TEXT_HEADER));
                config.players.customColors.hostileColor = uint(Parser.parsePositiveNumber(config.players.customColors.hostileColor,GlobalFunc.COLOR_TEXT_ENEMY));
+               config.players.customColors.friendColor = uint(Parser.parsePositiveNumber(config.players.customColors.friendColor,GlobalFunc.COLOR_TEXT_HEADER));
+               config.players.customColors.textChatColor = uint(Parser.parsePositiveNumber(config.players.customColors.textChatColor,1474479));
+               config.players.customColors.textChatClanColor = uint(Parser.parsePositiveNumber(config.players.customColors.textChatClanColor,13545954));
                config.players.customColors.publicTeamTypeColors = config.players.customColors.publicTeamTypeColors || {};
             }
             config.players.customFormats = config.players.customFormats || {"enabled":false};
