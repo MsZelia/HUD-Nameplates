@@ -573,10 +573,12 @@ package
          var useCustomTF:Boolean;
          var log:String;
          var isTeammateHidden:Boolean;
+         var isTC:Boolean;
          try
          {
             t1 = getTimer();
             log = "";
+            isTC = this.IsTextChat;
             isInDopExpoRaid = this.IsInDailyOps || this.IsInExpedition || this.IsInRaid;
             teamNameplates = this.TeamNameplates;
             if(!config || !teamNameplates)
@@ -603,7 +605,7 @@ package
             {
                nameplate = teamNameplates[i];
                namegroup = nameplate.NamePlateNameGroup_mc;
-               if(useCustomTF && namegroup.numChildren - int(this.IsTextChat) == 4)
+               if(useCustomTF && namegroup.numChildren - int(isTC) == 4)
                {
                   ClonedNames.push(cloneTextField(namegroup.Name_tf));
                }
@@ -708,6 +710,17 @@ package
                      {
                         log += "hideOther || ";
                         nameplate.inLOS = false;
+                     }
+                  }
+                  if(isTC)
+                  {
+                     if(cfg.hideTitle)
+                     {
+                        nameplate.Clan_tf.y = namegroup.Name_tf.y + 20;
+                     }
+                     if(cfg.customColors.enabled)
+                     {
+                        nameplate.Clan_tf.textColor = cfg.customColors.textChatClanColor;
                      }
                   }
                   if(useCustomTF)
